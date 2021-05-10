@@ -1,8 +1,12 @@
-1a) The naive approach is to sum the order_amount column and then divide by the number of rows/orders (i.e. averaging the order_amount column), but this assumes that each row/order is a purchase of one sneaker.
-    The correct approach would be to divide by the sum of the total_items column (i.e. the number of sneakers sold), which corrects for this issue.
+1a) The naive approach is to sum the order_amount column and then divide by the number of rows/orders (i.e. averaging the order_amount column),
+    but this assumes that each row/order is a purchase of one sneaker.
+    The correct approach would be to divide by the sum of the total_items column (i.e. the number of sneakers sold).
     The correct average should be $357.92 (rounded to 1 cent).
 
-1b) I would look at orders for which the order amount is abnormal for both the shop and the user (in my case, I used 3-sigma as the threshold for abnormality), as this could indicate abnormal activity or fraud.
+1b) I would look at orders for which the order amount is abnormal for both the shop and the user.
+    I looked at orders for which the purchase amount is more than three sigma greater than the mean value for each shop and each user,
+    and then selected the orders which appeared in both lists.
+    The Python code is located in the same folder as this txt file.    
 
 1c) Five orders fit this criteria: 692, 2308, 4142, 4712, and 4959.
 

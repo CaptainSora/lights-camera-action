@@ -74,14 +74,6 @@ def sneaker_shops():
             idx = shop_details['purchase_amt'].index(value)
             order_id = shop_details['purchase_id'][idx]
             shop_outlier_ids.append(order_id)
-    # print({
-    #     k: v for k, v in
-    #     sorted(stores.items(), key=lambda item: item[1], reverse=True)
-    # })
-    # print(sum([v for k, v in stores.items()]))
-    # print(sorted(user_outlier_ids))
-    # print(sorted(shop_outlier_ids))
-    # print()
-    print(sorted(set(user_outlier_ids).intersection(set(shop_outlier_ids))))
+    return sorted(set(user_outlier_ids).intersection(set(shop_outlier_ids)))
 
-sneaker_shops()
+print(sneaker_shops())
