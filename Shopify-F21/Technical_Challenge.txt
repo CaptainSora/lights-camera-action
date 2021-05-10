@@ -1,28 +1,68 @@
-1a) The naive approach is to sum the order_amount column and then divide by the number of rows/orders (i.e. averaging the order_amount column), but this assumes that each row/order is a purchase of one sneaker. The correct approach would be to divide by the sum of the total_items column (i.e. the number of sneakers sold), which corrects for this issue. The correct average should be $357.92 (rounded to 1 cent).
+1a) The naive approach is to sum the order_amount column and then divide by the number of rows/orders (i.e. averaging the order_amount column), but this assumes that each row/order is a purchase of one sneaker.
+    The correct approach would be to divide by the sum of the total_items column (i.e. the number of sneakers sold), which corrects for this issue.
+    The correct average should be $357.92 (rounded to 1 cent).
 
 1b) I would look at orders for which the order amount is abnormal for both the shop and the user (in my case, I used 3-sigma as the threshold for abnormality), as this could indicate abnormal activity or fraud.
 
 1c) Five orders fit this criteria: 692, 2308, 4142, 4712, and 4959.
 
-For question 2: There were two ways that I thought to solve parts a) and b), so I've included them both. I personally find the sub-query method more instinctive, but I am aware that the join method is generally preferred.
+For question 2: There were two ways that I thought to solve parts a) and b), so I've included them both.
+I personally find the sub-query method more instinctive, but I am aware that the join method is generally preferred.
 
 2a)
-Sub-query method: SELECT COUNT(DISTINCT OrderID) FROM [Orders] WHERE ShipperID = (SELECT ShipperID FROM [Shippers] WHERE ShipperName = 'Speedy Express');
-Join method: SELECT COUNT(DISTINCT OrderID) FROM [Orders] LEFT JOIN [Shippers] ON Orders.ShipperID = Shippers.ShipperID WHERE Shippers.ShipperName = 'Speedy Express';
+Sub-query method:
+    SELECT COUNT(DISTINCT OrderID)
+    FROM [Orders] WHERE ShipperID = (
+        SELECT ShipperID FROM [Shippers] WHERE ShipperName = 'Speedy Express'
+    );
+Join method:
+    SELECT COUNT(DISTINCT OrderID)
+    FROM [Orders]
+    LEFT JOIN [Shippers] ON Orders.ShipperID = Shippers.ShipperID
+    WHERE Shippers.ShipperName = 'Speedy Express';
 Result: 54 orders were shipped by Speedy Express in total.
 
 2b)
-Sub-query method: SELECT LastName FROM [Employees] WHERE EmployeeID = (SELECT EmployeeID FROM [Orders] GROUP BY EmployeeID ORDER BY COUNT(DISTINCT OrderID) DESC LIMIT 1);
-Join method: SELECT Employees.LastName FROM [Orders] LEFT JOIN [Employees] ON Orders.EmployeeID = Employees.EmployeeID GROUP BY Orders.EmployeeID ORDER BY COUNT(DISTINCT Orders.OrderID) DESC LIMIT 1;
+Sub-query method:
+    SELECT LastName
+    FROM [Employees]
+    WHERE EmployeeID = (
+        SELECT EmployeeID
+        FROM [Orders]
+        GROUP BY EmployeeID
+        ORDER BY COUNT(DISTINCT OrderID) DESC
+        LIMIT 1
+    );
+Join method:
+    SELECT Employees.LastName
+    FROM [Orders]
+    LEFT JOIN [Employees] ON Orders.EmployeeID = Employees.EmployeeID
+    GROUP BY Orders.EmployeeID
+    ORDER BY COUNT(DISTINCT Orders.OrderID) DESC
+    LIMIT 1;
 Result: Peacock is the last name of the employee with the most orders.
 
 2c) What is the correct interpretation of 'ordered the most'?
 Assuming 'ordered the most' means 'the item which is present in the most orders':
-
-SELECT Products.ProductName, COUNT(DISTINCT OrderDetails.OrderID) FROM [OrderDetails] LEFT JOIN [Orders] ON OrderDetails.OrderID = Orders.OrderID LEFT JOIN [Customers] ON Orders.CustomerID = Customers.CustomerID LEFT JOIN [Products] ON OrderDetails.ProductID = Products.ProductID WHERE Customers.Country = 'Germany' GROUP BY Products.ProductName ORDER BY COUNT(DISTINCT OrderDetails.OrderID) DESC LIMIT 1;
+    SELECT Products.ProductName, COUNT(DISTINCT OrderDetails.OrderID)
+    FROM [OrderDetails]
+    LEFT JOIN [Orders] ON OrderDetails.OrderID = Orders.OrderID
+    LEFT JOIN [Customers] ON Orders.CustomerID = Customers.CustomerID
+    LEFT JOIN [Products] ON OrderDetails.ProductID = Products.ProductID
+    WHERE Customers.Country = 'Germany'
+    GROUP BY Products.ProductName
+    ORDER BY COUNT(DISTINCT OrderDetails.OrderID) DESC
+    LIMIT 1;
 Result: Gorgonzola Telino was present in 5 orders from customers in Germany.
 
 Assuming 'ordered the most' means 'the item which has the highest quantity ordered':
-
-SELECT Products.ProductName, SUM(OrderDetails.Quantity) FROM [OrderDetails] LEFT JOIN [Orders] ON OrderDetails.OrderID = Orders.OrderID LEFT JOIN [Customers] ON Orders.CustomerID = Customers.CustomerID LEFT JOIN [Products] ON OrderDetails.ProductID = Products.ProductID WHERE Customers.Country = 'Germany' GROUP BY Products.ProductName ORDER BY SUM(OrderDetails.Quantity) DESC LIMIT 1;
+    SELECT Products.ProductName, SUM(OrderDetails.Quantity)
+    FROM [OrderDetails]
+    LEFT JOIN [Orders] ON OrderDetails.OrderID = Orders.OrderID
+    LEFT JOIN [Customers] ON Orders.CustomerID = Customers.CustomerID
+    LEFT JOIN [Products] ON OrderDetails.ProductID = Products.ProductID
+    WHERE Customers.Country = 'Germany'
+    GROUP BY Products.ProductName
+    ORDER BY SUM(OrderDetails.Quantity) DESC
+    LIMIT 1;
 Result: Boston Crab Meat had a total of 160 units ordered from customers in Germany.
